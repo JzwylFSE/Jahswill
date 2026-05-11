@@ -1,2 +1,1 @@
-# myportfolio
-A portfolio showing my skills
+A portfolio showcasing my skills
