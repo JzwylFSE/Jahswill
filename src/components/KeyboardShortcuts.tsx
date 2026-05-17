@@ -2,24 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { Command } from "lucide-react";
 
 const SHORTCUTS = [
-  { keys: ["T"], label: "Toggle theme" },
-  { keys: ["G", "H"], label: "Go to Home" },
-  { keys: ["G", "A"], label: "Go to About" },
-  { keys: ["G", "W"], label: "Go to Work" },
-  { keys: ["G", "S"], label: "Go to Tools" },
-  { keys: ["G", "C"], label: "Go to Contact" },
-  { keys: ["?"], label: "Show shortcuts" },
-  { keys: ["Esc"], label: "Close overlay" },
+  { keys: ["Q"], label: "Open Quick Access" },
+  { keys: ["T"], label: "Toggle Dark Mode" },
+  { keys: ["H"], label: "Go to Home" },
+  { keys: ["A"], label: "Go to About" },
+  { keys: ["W"], label: "Go to Work" },
+  { keys: ["S"], label: "Go to Tools" },
+  { keys: ["C"], label: "Go to Contact" },
+  { keys: ["?"], label: "Show Shortcuts" },
 ];
 
 export default function KeyboardShortcuts() {
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
-  const [pendingG, setPendingG] = useState(false);
 
   useEffect(() => {
     const isTyping = (el: EventTarget | null) => {
@@ -37,7 +38,6 @@ export default function KeyboardShortcuts() {
 
       if (k === "Escape") {
         setOpen(false);
-        setPendingG(false);
         return;
       }
       if (k === "?" || (e.shiftKey && k === "/")) {
@@ -47,43 +47,48 @@ export default function KeyboardShortcuts() {
       }
 
       const lower = k.toLowerCase();
+      const map: Record<string, string> = {
+        h: "/",
+        a: "/about",
+        w: "/work",
+        s: "/tools",
+        c: "/contact",
+      };
 
-      if (pendingG) {
-        const map: Record<string, string> = {
-          h: "/",
-          a: "/about",
-          w: "/work",
-          s: "/tools",
-          c: "/contact",
-        };
-        if (map[lower]) {
-          e.preventDefault();
-          router.push(map[lower]);
-        }
-        setPendingG(false);
+      if (map[lower]) {
+        e.preventDefault();
+        router.push(map[lower]);
         return;
       }
 
-      if (lower === "g") {
-        setPendingG(true);
-        setTimeout(() => setPendingG(false), 1200);
-        return;
-      }
       if (lower === "t") {
         e.preventDefault();
-        const isLight = document.documentElement.classList.toggle("light");
-        localStorage.setItem("theme", isLight ? "light" : "dark");
+        // Toggle theme directly via next-themes instead of relying on DOM
+        setTheme(theme === "dark" ? "light" : "dark");
+        return;
+      }
+
+      if (lower === "f") {
+        e.preventDefault();
+        // Notify listeners (eg. Navbar) to toggle focus mode
+        window.dispatchEvent(new CustomEvent("toggleFocus"));
+        return;
+      }
+
+      if (lower === "q") {
+        e.preventDefault();
+        // Request the quick access drawer to open via a global event
+        window.dispatchEvent(new CustomEvent("openQuickAccess"));
         return;
       }
     };
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [navigator, pendingG]);
+  }, [router]);
 
   return (
     <>
-      {/* Hint pill bottom-right */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Show keyboard shortcuts"
@@ -96,19 +101,13 @@ export default function KeyboardShortcuts() {
         for shortcuts
       </button>
 
-      {pendingG && (
-        <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-full border border-border bg-card/90 px-3 py-1.5 text-[11px] text-foreground backdrop-blur">
-          <kbd className="font-mono">G</kbd> — then H · A · W · S · C
-        </div>
-      )}
-
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
             onClick={() => setOpen(false)}
           >
             <div className="absolute inset-0 bg-background/70 backdrop-blur-xl" />
@@ -118,13 +117,13 @@ export default function KeyboardShortcuts() {
               exit={{ y: 20, opacity: 0, scale: 0.96 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-md rounded-2xl border border-border bg-card/90 p-6 backdrop-blur-2xl shadow-[0_30px_80px_-20px_var(--glow)]"
+              className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-[0_30px_80px_-20px_var(--glow)]"
             >
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Keyboard Shortcuts
+                Shortcuts
               </p>
               <h3 className="mt-2 text-lg font-semibold tracking-tight">
-                Move around faster.
+                Navigate Faster.
               </h3>
               <ul className="mt-5 space-y-2">
                 {SHORTCUTS.map((s) => (
@@ -137,7 +136,7 @@ export default function KeyboardShortcuts() {
                       {s.keys.map((k, i) => (
                         <kbd
                           key={i}
-                          className="rounded border border-border bg-background/70 px-2 py-0.5 font-mono text-[11px] text-foreground"
+                          className="rounded border border-border bg-muted px-2 py-0.5 font-mono text-[11px] font-bold text-foreground"
                         >
                           {k}
                         </kbd>

@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Providers from "@/components/providers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import Providers from "@/components/providers";
+
+config.autoAddCss = false; // Prevent Font Awesome from injecting CSS automatically (Next.js friendly)
 import CustomCursor from "@/components/CustomCursor";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -28,7 +32,7 @@ export default function RootLayout({
           <Providers>
             <CustomCursor />
             <Navbar />
-            <main>{children}</main>
+            <main className="min-h-screen">{children}</main>
             <Footer />
           </Providers>
         </ThemeProvider>

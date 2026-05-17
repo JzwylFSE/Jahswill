@@ -1,62 +1,107 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail } from "lucide-react";
-import GithubIcon from "./icons/GithubIcon";
-import LinkedinIcon from "./icons/LinkedinIcon";
-
-const links = [
-  { Icon: GithubIcon, href: "https://github.com/JzwylFSE", label: "GitHub" },
-  {
-    Icon: LinkedinIcon,
-    href: "https://www.linkedin.com/in/jahswill-simeon/",
-    label: "LinkedIn",
-  },
-  { Icon: Mail, href: "mailto:cjsimeon090@gmail.com", label: "Email" },
-];
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGithub, faLinkedin } from "@fortawesome/free-brands-svg-icons";
 
 export default function Footer() {
   return (
-    <footer className="relative px-4 py-16 sm:px-6 sm:py-20">
-      <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-px max-w-6xl bg-gradient-to-r from-transparent via-border to-transparent" />
+    <footer className="relative mt-24 w-full overflow-hidden">
+      {/* The Grid / Bg Boxes Pattern
+        Gradually fades in at the top and fades out at the bottom for a smooth transition.
+      */}
+      <div 
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.04] dark:opacity-[0.06]"
+        style={{
+          backgroundImage: "linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+          // Smooth fade in at the top (0% to 15%) and fade out at the bottom (85% to 100%)
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)"
+        }}
+      />
+
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.6 }}
-        className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 sm:flex-row"
+        className="mx-auto max-w-7xl px-6 pb-12 pt-16 lg:px-8"
       >
-        <div className="text-center sm:text-left">
-          <p className="text-sm font-medium text-foreground">
-            Jah'swill Simeon
-          </p>
-          <a
-            href="mailto:cjsimeon090@gmail.com"
-            className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-          >
-            cjsimeon090@gmail.com
-          </a>
+        <div className="grid gap-16 lg:grid-cols-12 lg:gap-8">
+          
+          {/* Left Column: About Me (Spans 5 columns) */}
+          <div className="order-2 lg:order-none lg:col-span-5">
+            <h3 className="mb-6 text-sm font-extrabold text-gray-500 dark:text-gray-400">
+              About Me
+            </h3>
+            <p className="text-base leading-relaxed text-muted-foreground">
+              I'm Jah'swill Simeon, a <strong className="font-extrabold text-foreground">fullstack web developer</strong> who loves creating intuitive frontends, robust backends, and the seamless APIs that connect them.
+            </p>
+            
+            {/* Social Icons */}
+            <div className="mt-8 flex items-center gap-5">
+              <a
+                href="https://github.com/JzwylFSE"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub"
+                className="text-foreground/80 transition-colors hover:text-[#0284c7] dark:hover:text-[#74d4ff]"
+              >
+                <FontAwesomeIcon icon={faGithub} className="size-6" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/jahswill-simeon/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="LinkedIn"
+                className="text-foreground/80 transition-colors hover:text-[#0284c7] dark:hover:text-[#74d4ff]"
+              >
+                <FontAwesomeIcon icon={faLinkedin} className="size-6" />
+              </a>
+            </div>
+          </div>
+
+          {/* Right Column: Work Links (Spans 3 columns, starts at column 8 to push it to the right) */}
+          <div className="order-1 lg:order-none lg:col-span-3 lg:col-start-8">
+            <h3 className="mb-6 text-sm font-extrabold text-gray-500 dark:text-gray-400">
+              Work
+            </h3>
+            <ul className="flex flex-col gap-4 text-base font-extrabold text-muted-foreground">
+              <li>
+                <Link
+                  href="/work"
+                  className="transition-colors hover:text-[#0284c7] dark:hover:text-[#74d4ff]"
+                >
+                  Projects
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/work/skills-and-tools"
+                  className="transition-colors hover:text-[#0284c7] dark:hover:text-[#74d4ff]"
+                >
+                  Skills & Tools
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/work/contact"
+                  className="transition-colors hover:text-[#0284c7] dark:hover:text-[#74d4ff]"
+                >
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
         </div>
-        <div className="flex items-center gap-2">
-          {links.map(({ Icon, href, label }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={label}
-              className="group flex size-10 items-center justify-center rounded-full border border-border bg-card/40 backdrop-blur transition-all duration-300 hover:scale-110 hover:border-accent/50 hover:bg-card hover:shadow-[0_0_24px_-6px_var(--glow)]"
-            >
-              <Icon
-                className="size-4 text-muted-foreground transition-colors group-hover:text-foreground"
-                strokeWidth={1.5}
-              />
-            </a>
-          ))}
+
+        {/* Bottom Copyright Row */}
+        <div className="mt-24 flex items-center justify-between text-sm font-medium text-muted-foreground">
+          <p>© {new Date().getFullYear()}, Jah'swill Simeon</p>
         </div>
-        <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} — Made with caffeine & curiosity.
-        </p>
       </motion.div>
     </footer>
   );
